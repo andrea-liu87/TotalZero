@@ -1,10 +1,14 @@
 package com.andreasgift.totalzero;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -16,6 +20,14 @@ import java.util.Random;
 
 //Total Zero. The app to train your brain by using simple math
 public class MainActivity extends AppCompatActivity {
+    MenuItem easyChecked;
+    MenuItem difficultCheck;
+
+    final String LVLSHRPREFS = "levelSharedPrefs";
+    SharedPreferences levelShrdPrefs;
+    int LVLEASYSHAREDPREFSS = 1;
+    int LVLDIFFCLTSHRDPREFS =0;
+    int difficultyMode;
 
     TextView welcomeText;
     TextView scoreText;
@@ -54,6 +66,21 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        levelShrdPrefs = getSharedPreferences(LVLSHRPREFS, Context.MODE_PRIVATE);
+        SharedPreferences.OnSharedPreferenceChangeListener listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                if(key.equals("key")){
+                    difficultyMode = sharedPreferences.getInt(key,LVLDIFFCLTSHRDPREFS);
+                    if (difficultyMode == 1){
+                    Toast.makeText(getApplicationContext(),"Level : Easy",Toast.LENGTH_LONG).show();
+                }else {
+                        Toast.makeText(getApplicationContext(),"Level : Difficult",Toast.LENGTH_LONG).show();
+                    }}
+            }
+        };
+        levelShrdPrefs.registerOnSharedPreferenceChangeListener(listener);
 
         randon = new Random(seed);
         baseNumber = 1470;
@@ -147,8 +174,47 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        easyChecked = menu.findItem(R.id.level_easy);
+        difficultCheck = menu.findItem(R.id.level_difficult);
+        if (difficultyMode == LVLEASYSHAREDPREFSS){
+            easyChecked.setChecked(true);
+            difficultCheck.setChecked(false);
+        }else {
+            easyChecked.setChecked(false);
+            difficultCheck.setChecked(true);
+        }
+        return true;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        SharedPreferences.Editor editor = levelShrdPrefs.edit();
+        if (item.getItemId() == R.id.level_easy){
+            editor.putInt("key",LVLEASYSHAREDPREFSS);
+            editor.commit();
+            item.setChecked(true);
+            difficultCheck.setChecked(false);
+                return true;}
+                else{
+            editor.putInt("key",LVLDIFFCLTSHRDPREFS);
+            editor.commit();
+            item.setChecked(true);
+            easyChecked.setChecked(false);
+                return true;
+        }
+    }
+
     //Set all number and sign on the TEXTvIEW
     private void setAllNumber() {
+        if (difficultyMode == LVLEASYSHAREDPREFSS){
+            baseNumber = randomInt(8,33);
+        }else {
+            baseNumber = randomInt(146, 1499);
+        }
         equationString = toStr(baseNumber);
         equationText.setText(equationString);
 

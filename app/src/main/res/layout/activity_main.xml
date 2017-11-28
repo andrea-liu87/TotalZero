@@ -22,20 +22,20 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/score"
-                android:layout_marginLeft="8dp"
+                android:layout_marginLeft="@dimen/padding"
                 android:fontFamily="@font/gooddog"
                 android:text="Score: 0"
-                android:textSize="30sp"
+                android:textSize="@dimen/text_size"
                 android:layout_alignParentLeft="true"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/timer"
-                android:layout_marginRight="8dp"
+                android:layout_marginRight="@dimen/padding"
                 android:fontFamily="@font/gooddog"
                 android:text="60"
-                android:textSize="30sp"
+                android:textSize="@dimen/text_size"
                 android:layout_alignParentRight="true"/>
         </RelativeLayout>
 
@@ -43,7 +43,7 @@
             android:id="@+id/equation_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="15dp"
+            android:layout_marginLeft="15dp"
             style="@style/TextViewforGrid"
             android:text="1470"
             android:textSize="@dimen/text_size" />
@@ -52,10 +52,9 @@
             android:id="@+id/gridLayout"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity = "bottom"
             android:layout_margin="15dp"
-            android:columnCount="3"
-            android:scrollbars="vertical"
-            android:verticalScrollbarPosition="right">
+            android:columnCount="3">
 
             <TextView
                 android:id="@+id/variabel1"
@@ -124,13 +123,15 @@
 
         <Button
             android:id="@+id/restart_button"
+            android:textSize="20sp"
+            android:fontFamily="@font/gooddog"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:background="@drawable/bttn_plain"
-            android:layout_marginBottom="15dp"
+            android:layout_marginBottom="10dp"
             android:elevation="5dp"
-            android:paddingVertical="8dp"
+            android:paddingVertical="@dimen/padding"
             android:paddingHorizontal="48dp"
             android:text="restart" />
     </LinearLayout>
@@ -144,10 +145,10 @@
         android:layout_margin="15dp"
         android:background="@drawable/button_capsule"
         android:elevation="8dp"
-        android:paddingVertical="8dp"
+        android:paddingVertical="@dimen/padding"
         android:paddingHorizontal="48dp"
         android:fontFamily="@font/gooddog"
         android:text="@string/welcome_text"
-        android:textSize="30sp" />
+        android:textSize="@dimen/text_size"/>
 
 </FrameLayout>
