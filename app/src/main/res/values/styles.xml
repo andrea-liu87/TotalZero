@@ -11,13 +11,20 @@
 <style name="TextViewforGrid" parent="Base.Widget.AppCompat.TextView.SpinnerItem">
     <item name="android:textSize">@dimen/text_size</item>
     <item name="android:padding">@dimen/padding</item>
-    <item name="android:layout_marginRight">@dimen/margin_right</item>
     <item name="android:layout_width">wrap_content</item>
     <item name="android:layout_height">wrap_content</item>
+    <item name="android:textAlignment">center</item>
     <item name="android:text">8</item>
     <item name="android:textColor">#606060</item>
     <item name="android:fontFamily">@font/grobold</item>
+    <item name="android:layout_columnWeight">1</item>
+    <item name="android:layout_rowWeight">1</item>
+    <item name="android:layout_gravity">fill_horizontal</item>
 </style>
+
+    <style name="TextViewforEquation" parent="TextViewforGrid">
+        <item name="android:textAlignment">textStart</item>
+    </style>
 
     <style name="GoodDogTextStyle" parent="Base.Widget.AppCompat.TextView.SpinnerItem">
         <item name="android:textSize">@dimen/text_size</item>

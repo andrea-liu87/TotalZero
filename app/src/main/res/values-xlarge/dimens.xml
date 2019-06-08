@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <dimen name="text_size">48sp</dimen>
-    <dimen name="margin_right">128dp</dimen>
     <dimen name="padding">16dp</dimen>
+    <dimen name="max_width">600dp</dimen>
 </resources>

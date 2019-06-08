@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">Total Zero</string>
     <string name="welcome_text">Make it zero!</string>
+    <string name="score_0">Score: 0</string>
+    <string name="_1470">1470</string>
+    <string name="equal_sign">=</string>
+    <string name="time_text">60</string>
+    <string name="restart">restart</string>
 </resources>

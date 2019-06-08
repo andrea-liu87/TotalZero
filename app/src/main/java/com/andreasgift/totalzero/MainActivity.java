@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,47 +21,50 @@ import java.util.Random;
 
 //Total Zero. The app to train your brain by using simple math
 public class MainActivity extends AppCompatActivity {
-    MenuItem easyChecked;
-    MenuItem difficultCheck;
+    private MenuItem easyChecked;
+    private MenuItem difficultCheck;
 
-    final String LVLSHRPREFS = "levelSharedPrefs";
-    SharedPreferences levelShrdPrefs;
-    int LVLEASYSHAREDPREFSS = 1;
-    int LVLDIFFCLTSHRDPREFS =0;
-    int difficultyMode;
+    private final String LVLSHRPREFS = "levelSharedPrefs";
+    private SharedPreferences levelShrdPrefs;
+    private final int LVLEASYSHAREDPREFSS = 1;
+    private final int LVLDIFFCLTSHRDPREFS = 0;
+    private int difficultyMode;
 
-    TextView welcomeText;
-    TextView scoreText;
-    TextView timerText;
-    TextView variable1;
-    TextView variable2;
-    TextView variable3;
-    TextView variable4;
-    TextView variable5;
-    TextView variable6;
-    TextView variable7;
-    TextView variable8;
-    TextView sign1;
-    TextView sign2;
-    TextView sign3;
-    TextView sign4;
-    TextView sign5;
-    TextView sign6;
-    TextView equalSign;
+    private TextView welcomeText;
+    private TextView scoreText;
+    private TextView timerText;
+    private TextView variable1;
+    private TextView variable2;
+    private TextView variable3;
+    private TextView variable4;
+    private TextView variable5;
+    private TextView variable6;
+    private TextView variable7;
+    private TextView variable8;
+    private TextView sign1;
+    private TextView sign2;
+    private TextView sign3;
+    private TextView sign4;
+    private TextView sign5;
+    private TextView sign6;
+    private TextView equalSign;
 
-    Button restartButton;
-    String equationString;
+    private Button restartButton;
+    private String equationString;
 
-    TextView equationText;
-    CountDownTimer timerMachine;
+    private TextView equationText;
+    private CountDownTimer timerMachine;
 
-    Random randon;
-    int seed = 0;
-    int score = 0;
-    int timer = 60000; //60 sec for each stage
+    private Random randon;
+    private final int seed = 0;
+    private int score = 0;
+    private final int timer = 60000; //60 sec for each stage
+    private long milisBeforefinish;
+    private long milisLeft;
     private int baseNumber;
 
-    MediaPlayer backSound;
+    private MediaPlayer backSound;
+    private Boolean uiPause = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
                 setAllNumber();
                 score = 0;
                 scoreText.setText(toStr(score));
-                timerMachine.start();
+                timerStart(timer);
                 backSound.start();
             }
         });
@@ -132,8 +136,12 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 equationString = equationString + " =";
                 equationText.setText(equationString);
-                equationText.setText(equationString + toStr(calculate()));
-                if (calculate() == 0) {
+                int result = calculate(equationString);
+                if (result == -1) {
+                    Toast.makeText(getApplicationContext(), "Invalid argument. Restart the problem ", Toast.LENGTH_SHORT).show();
+                } else {
+                equationText.setText(equationString + toStr(result));}
+                if (result == 0) {
                     score = score + 1;
                     scoreText.setText("Score: " + score);}
 
@@ -152,14 +160,23 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 welcomeText.setVisibility(View.INVISIBLE);
                 setAllNumber();
+                timerStart(timer);
             }
         });
+    }
 
-        timerMachine = new CountDownTimer(timer, 1000) {
+    private void timerStart(long milis){
+        if (timerMachine != null){
+            timerMachine.cancel();
+            milisBeforefinish = 0;
+            milisLeft = 0;
+        }
+       timerMachine = new CountDownTimer(milis,1000) {
 
             @Override
             public void onTick(long miliSecBfrFinish) {
                 timerText.setText(Long.toString(miliSecBfrFinish / 1000));
+                milisBeforefinish = miliSecBfrFinish;
             }
 
             @Override
@@ -171,8 +188,15 @@ public class MainActivity extends AppCompatActivity {
                 backSound.reset();
             }
         };
-
+       timerMachine.start();
     }
+
+
+    private void timerPause(){
+        milisLeft = milisBeforefinish;
+        timerMachine.cancel();
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -189,6 +213,34 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (backSound != null){
+            uiPause = true;
+            backSound.pause();
+            timerPause();}
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (uiPause){
+            backSound.start();
+        }
+        if (milisLeft > 0){
+            timerStart(milisLeft);
+        }
+        uiPause = false;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        backSound.release();
+        timerMachine = null;
+        milisLeft = 0;
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -208,7 +260,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //Set all number and sign on the TEXTvIEW
+    //Set all number and sign on the TextView
     private void setAllNumber() {
         if (difficultyMode == LVLEASYSHAREDPREFSS){
             baseNumber = randomInt(8,33);
@@ -266,7 +318,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     //This method to set the action happen after click each variable
-    public void clickVariable(TextView sview) {
+    private void clickVariable(TextView sview) {
         sview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -283,11 +335,35 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public int calculate() {
+    //Check some invalid case on the equation ex : 1450(2-0)=
+    private boolean checkInvalidCase(String equation){
+        for (int i = 0; i < equation.length()-1; i++){
+            String curchar = String.valueOf(equation.charAt(i));
+            String nextChar = String.valueOf(equation.charAt(i+1));
+            if (curchar.matches("\\d+(?:\\.\\d+)?") && nextChar.equals("(")){
+                return true;
+            }
+            if (curchar.equals(")") && nextChar.matches("\\d+(?:\\.\\d+)?")){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * This method will calculate equation
+     * @param equationString equation string need to be calculate
+     * @return equation result
+     */
+    private int calculate(String equationString) {
         int tempNumb = -1;
         int result = 0;
         ArrayList<Integer> arrayNumb = new ArrayList<Integer>();
         ArrayList<String> arraySign = new ArrayList<String>();
+
+        if (checkInvalidCase(equationString)){
+            return tempNumb;
+        }
 
         //Classified the string and number into 2 different array
         for (int i = 0; i < equationString.length(); i++) {
@@ -362,7 +438,7 @@ public class MainActivity extends AppCompatActivity {
 
     //This method to calculate linear formula  within two variables
     //Ex a+b, a-b, axb; a=baseNumb & b=nextNumb
-    public int linearCalc(String sign, int baseNumb, int nextNumb) {
+    private int linearCalc(String sign, int baseNumb, int nextNumb) {
         double tempResult = 0;
         if (whatSign(sign) == 1) {return baseNumb + nextNumb;}
         if (whatSign(sign) == 2) {return baseNumb - nextNumb;}
@@ -381,7 +457,7 @@ public class MainActivity extends AppCompatActivity {
 
     //This method to calculate the linear formula with more than two variable
     // Ex: a+b-c; axb-c; etc
-    public int linearArrayCalc(ArrayList<Integer> number, ArrayList<String> sign) {
+    private int linearArrayCalc(ArrayList<Integer> number, ArrayList<String> sign) {
         int result = number.get(0);
         if (number.size() == sign.size()) {
             for (int i = 0; i < number.size() - 1; i++) {
@@ -394,7 +470,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //This method to identify what is the sign on the current char
-    public int whatSign(String chars) {
+    private int whatSign(String chars) {
         String sign1 = "+";
         String sign2 = "-";
         String sign3 = "x";
@@ -421,7 +497,7 @@ public class MainActivity extends AppCompatActivity {
         if (chars.equals(sign6)) {
             return 6;
         }
-        if (chars.equals(sign6)) {
+        if (chars.equals(sign7)) {
             return 7;
         } else {
             return 0;
@@ -430,7 +506,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     //This method the return sign randomly. This sign will be plotted as grid layout
-    public String returnSign() {
+    private String returnSign() {
         String sign1 = "+";
         String sign2 = "-";
         String sign3 = "x";
@@ -454,16 +530,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //This method to create random int with range from low to high
-    public int randomInt(int low, int high) {
+    private int randomInt(int low, int high) {
         Random r = new Random();
-        int Low = low;
-        int High = high;
-        int result = r.nextInt(High - Low) + Low;
-        return result;
+        return r.nextInt(high - low) + low;
     }
 
     //This method to convert int to String
-    public String toStr(int number) {
+    private String toStr(int number) {
         return Integer.toString(number);
     }
 
