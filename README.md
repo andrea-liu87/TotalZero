@@ -4,10 +4,16 @@
 
 MinSDKVersion : 21
 </br>Development Tool : Android Studio Library
+</br>Build Tools Version 28.0.3
+</br>Gradle Build Version 3.4.1
 </br>Programming languange : Java
+
+Tested Device :
+</br> Samsung SM P350 Android 6.0.1 API23
+</br> ONEPLUS A5000 Android 9 API28
   
-Version : 2
-</br>Version Code : 1.1
+Version : 4
+</br>Version Code : 1.3
   
 ![Screenshot](https://github.com/snufflesrea/TotalZero/blob/master/ss1.PNG)
 ![Screenshot](https://github.com/snufflesrea/TotalZero/blob/master/ss2.PNG)
